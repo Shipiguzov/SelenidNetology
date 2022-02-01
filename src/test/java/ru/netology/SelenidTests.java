@@ -2,20 +2,18 @@ package ru.netology;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Date;
 
 import static com.codeborne.selenide.Selenide.*;
 
 public class SelenidTests {
+    static long BETWEEN_DAYS = 86_400_000;
 
     @BeforeAll
     static void setupAll() {
@@ -70,7 +68,7 @@ public class SelenidTests {
         $(Selectors.byClassName("input_type_tel")).click();
         String data = $(Selectors.byClassName("calendar__day_state_current"))
                 .getAttribute("data-day");
-        long newDate = Long.valueOf(data) + 86_400_000;
+        long newDate = Long.valueOf(data) + BETWEEN_DAYS;
         $(Selectors.byAttribute("data-day", String.valueOf(newDate))).click();
         $("[name=\"name\"]").setValue("Иван Петров");
         $("[name=\"phone\"]").setValue("+91234567890");
