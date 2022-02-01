@@ -11,6 +11,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.Date;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -18,15 +19,14 @@ public class SelenidTests {
 
     @BeforeAll
     static void setupAll() {
-        WebDriverManager.chromedriver().setup();
     }
 
     @BeforeEach
     void setup() {
-        ChromeOptions options = new ChromeOptions();
+        /*ChromeOptions options = new ChromeOptions();
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--no-sandbox");
-        options.addArguments("--headless");
+        options.addArguments("--headless");*/
         open("http://localhost:9999/");
     }
 
@@ -58,6 +58,22 @@ public class SelenidTests {
         $("[class='input__control'][type='tel']").setValue("02.02.2022");
         $("[name=\"name\"]").setValue("Иван Петров");
         $("[name=\"phone\"]").setValue("+71234567890");
+        $(Selectors.byClassName("checkbox__box")).click();
+        $(Selectors.byText("Забронировать")).click();
+        $(Selectors.withText("Успешно!")).should(Condition.appear, Duration.ofSeconds(15));
+    }
+
+    //Data selects from calendar
+    @Test
+    void dateFromCalendar() {
+        $(Selectors.byAttribute("type", "text")).setValue("Москва");
+        $(Selectors.byClassName("input_type_tel")).click();
+        String data = $(Selectors.byClassName("calendar__day_state_current"))
+                .getAttribute("data-day");
+        long newDate = Long.valueOf(data) + 86_400_000;
+        $(Selectors.byAttribute("data-day", String.valueOf(newDate))).click();
+        $("[name=\"name\"]").setValue("Иван Петров");
+        $("[name=\"phone\"]").setValue("+91234567890");
         $(Selectors.byClassName("checkbox__box")).click();
         $(Selectors.byText("Забронировать")).click();
         $(Selectors.withText("Успешно!")).should(Condition.appear, Duration.ofSeconds(15));
