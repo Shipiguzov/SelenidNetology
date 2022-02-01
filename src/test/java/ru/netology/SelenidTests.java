@@ -11,7 +11,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.Month;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -32,48 +31,19 @@ public class SelenidTests {
     }
 
     @AfterEach
-    void shutdown(){
-    }
-
-    //TODO: Complete this method with month and day checks
-    void checkDateByCalendar(){
-        int year = LocalDate.now().getYear();
-        int month = LocalDate.now().getMonthValue();
-        String monthName = "";
-        switch (month) {
-            case 1: monthName = "Январь";
-            case 2: monthName = "Февраль";
-            case 3: monthName = "Март";
-            case 4: monthName = "Апрель";
-        }
-        $("button[type=\"button\"]").click();
-        $(Selectors.byAttribute("data-step", "12")).click();
-        year++;
-        $(Selectors.withText(String.valueOf(year))).should(Condition.appear, Duration.ofSeconds(15));
-        $(Selectors.byAttribute("data-step", "12")).click();
-        year++;
-        $(Selectors.withText(String.valueOf(year))).should(Condition.appear, Duration.ofSeconds(15));
-
+    void shutdown() {
     }
 
     //Positive tests
 
     //All data enters like text
     @Test
-    void correctTest(){
+    void correctTest() {
         $(Selectors.byAttribute("type", "text")).setValue("Москва");
         LocalDate date = LocalDate.now().plusDays(5);
-        StringBuilder dateToForm = new StringBuilder()
-                .append(date.getDayOfMonth())
-                .append(".")
-                .append(date.getMonthValue())
-                .append(".")
-                .append(date.getYear());
-        System.out.println(dateToForm);
-        $("[class='input__control'][type='tel']").clear();
-        $("[class='input__control'][type='tel']").setValue(dateToForm.toString());
+        $("[class='input__control'][type='tel']").setValue(date.toString());
         $("[name=\"name\"]").setValue("Иван Петров");
-        $("[name=\"phone\"]").setValue("+71234567890");
+        $("[name=\"phone\"]").setValue("+91234567890");
         $(Selectors.byClassName("checkbox__box")).click();
         $(Selectors.byText("Забронировать")).click();
         $(Selectors.withText("Успешно!")).should(Condition.appear, Duration.ofSeconds(15));
@@ -81,7 +51,7 @@ public class SelenidTests {
 
     //City selects by click after enter first letter
     @Test
-    void correctTestCitySelectsByClick(){
+    void correctTestCitySelectsByClick() {
 //        $(Selectors.byAttribute("type", "text")).setValue("Москва");
         $(Selectors.byAttribute("type", "text")).setValue("Мо");
         $(Selectors.byText("Москва")).click();
@@ -93,26 +63,11 @@ public class SelenidTests {
         $(Selectors.withText("Успешно!")).should(Condition.appear, Duration.ofSeconds(15));
     }
 
-    //Data selects by click in form
-    //TODO: Complete this test
-    @Test
-    void correctTestCalendarSelectsByclick(){
-        $(Selectors.byAttribute("type", "text")).setValue("Москва");
-//        $("[class='input__control'][type='tel']").setValue("02.02.2022");
-        checkDateByCalendar();
-        /*$(Selectors.byAttribute("data-day", "1644526800000")).click();
-        $("[name=\"name\"]").setValue("Иван Петров");
-        $("[name=\"phone\"]").setValue("+71234567890");
-        $(Selectors.byClassName("checkbox__box")).click();
-        $(Selectors.byText("Забронировать")).click();
-        $(Selectors.withText("Успешно!")).should(Condition.appear, Duration.ofSeconds(15));*/
-    }
-
     //Negative tests
 
-    //City name by English
+    //City name in English
     @Test
-    void incorrectCity(){
+    void incorrectCity() {
         $(Selectors.byAttribute("type", "text")).setValue("Mos");
         $("[class='input__control'][type='tel']").setValue("02.02.2022");
         $("[name=\"name\"]").setValue("Иван Петров");
@@ -122,23 +77,41 @@ public class SelenidTests {
         $(Selectors.withText("Доставка в выбранный город недоступна")).should(Condition.appear, Duration.ofSeconds(5));
     }
 
-    //TODO: complete test with date in past
-    //Entered data in the past
+    //Entered wrong data
     @Test
-    void dataInPast(){
+    void wrongDate() {
         $(Selectors.byAttribute("type", "text")).setValue("Москва");
-        $("[class='input__control'][type='tel']").setValue("02.02.2021");
+        LocalDate date = LocalDate.now();
+        $("[class='input__control'][type='tel']").setValue(date.toString());
         $("[name=\"name\"]").setValue("Иван Петров");
         $("[name=\"phone\"]").setValue("+71234567890");
         $(Selectors.byClassName("checkbox__box")).click();
         $(Selectors.byText("Забронировать")).click();
-        $(Selectors.byText("Заказ на выбранную дату невозможен")).should(Condition.appear, Duration.ofSeconds(5));
+        $(Selectors.withText("Заказ на выбранную дату невозможен")).should(Condition.appear, Duration.ofSeconds(15));
     }
 
-    //TODO: complete test with date today + 1 day
+    //wrong phone number
+    @Test
+    void wrongPhoneNumberTest() {
+        $(Selectors.byAttribute("type", "text")).setValue("Москва");
+        $("[class='input__control'][type='tel']").setValue(LocalDate.now().plusDays(10).toString());
+        $("[name=\"name\"]").setValue("Иван Петров");
+        $("[name=\"phone\"]").setValue("+712");
+        $(Selectors.byClassName("checkbox__box")).click();
+        $(Selectors.byText("Забронировать")).click();
+        $(Selectors.byText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."))
+                .should(Condition.appear, Duration.ofSeconds(15));
+    }
 
-    //TODO: complete test with incorrect phone number
-
-    //TODO: complete test with unchecked checkbox
-
+    //checkbox unchecked
+    @Test
+    void checkboxError() {
+        $(Selectors.byAttribute("type", "text")).setValue("Москва");
+        $("[class='input__control'][type='tel']").setValue(LocalDate.now().plusDays(10).toString());
+        $("[name=\"name\"]").setValue("Иван Петров");
+        $("[name=\"phone\"]").setValue("+712");
+        $(Selectors.byText("Забронировать")).click();
+        $(Selectors.byClassName("input_invalid"))
+                .should(Condition.appear, Duration.ofSeconds(15));
+    }
 }
