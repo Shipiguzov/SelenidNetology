@@ -13,6 +13,8 @@ import java.time.LocalDate;
 import static com.codeborne.selenide.Selenide.*;
 
 public class SelenidTests {
+
+    LocalDate date = LocalDate.now().plusDays(5);
     static long BETWEEN_DAYS = 86_400_000;
 
     @BeforeAll
@@ -38,7 +40,6 @@ public class SelenidTests {
     @Test
     void correctTest() {
         $(Selectors.byAttribute("type", "text")).setValue("Москва");
-        LocalDate date = LocalDate.now().plusDays(5);
         $("[class='input__control'][type='tel']").setValue(date.toString());
         $("[name=\"name\"]").setValue("Иван Петров");
         $("[name=\"phone\"]").setValue("+91234567890");
@@ -53,7 +54,7 @@ public class SelenidTests {
 //        $(Selectors.byAttribute("type", "text")).setValue("Москва");
         $(Selectors.byAttribute("type", "text")).setValue("Мо");
         $(Selectors.byText("Москва")).click();
-        $("[class='input__control'][type='tel']").setValue("02.02.2022");
+        $("[class='input__control'][type='tel']").setValue(date.toString());
         $("[name=\"name\"]").setValue("Иван Петров");
         $("[name=\"phone\"]").setValue("+71234567890");
         $(Selectors.byClassName("checkbox__box")).click();
@@ -66,9 +67,9 @@ public class SelenidTests {
     void dateFromCalendar() {
         $(Selectors.byAttribute("type", "text")).setValue("Москва");
         $(Selectors.byClassName("input_type_tel")).click();
-        String data = $(Selectors.byClassName("calendar__day_state_current"))
+        String dataFromCalendar = $(Selectors.byClassName("calendar__day_state_current"))
                 .getAttribute("data-day");
-        long newDate = Long.valueOf(data) + BETWEEN_DAYS;
+        long newDate = Long.valueOf(dataFromCalendar) + BETWEEN_DAYS;
         $(Selectors.byAttribute("data-day", String.valueOf(newDate))).click();
         $("[name=\"name\"]").setValue("Иван Петров");
         $("[name=\"phone\"]").setValue("+91234567890");
@@ -83,7 +84,7 @@ public class SelenidTests {
     @Test
     void incorrectCity() {
         $(Selectors.byAttribute("type", "text")).setValue("Mos");
-        $("[class='input__control'][type='tel']").setValue("02.02.2022");
+        $("[class='input__control'][type='tel']").setValue(date.toString());
         $("[name=\"name\"]").setValue("Иван Петров");
         $("[name=\"phone\"]").setValue("+71234567890");
         $(Selectors.byClassName("checkbox__box")).click();
@@ -95,8 +96,7 @@ public class SelenidTests {
     @Test
     void wrongDate() {
         $(Selectors.byAttribute("type", "text")).setValue("Москва");
-        LocalDate date = LocalDate.now();
-        $("[class='input__control'][type='tel']").setValue(date.toString());
+        $("[class='input__control'][type='tel']").setValue(LocalDate.now().toString());
         $("[name=\"name\"]").setValue("Иван Петров");
         $("[name=\"phone\"]").setValue("+71234567890");
         $(Selectors.byClassName("checkbox__box")).click();
