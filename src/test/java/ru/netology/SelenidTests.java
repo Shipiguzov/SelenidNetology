@@ -2,13 +2,12 @@ package ru.netology;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.openqa.selenium.Keys;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Selenide.*;
 
@@ -39,27 +38,35 @@ public class SelenidTests {
     //All data enters like text
     @Test
     void correctTest() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.YYYY");
         $(Selectors.byAttribute("type", "text")).setValue("Москва");
-        $("[class='input__control'][type='tel']").setValue(date.toString());
+        $("[class='input__control'][type='tel']").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[class='input__control'][type='tel']").append(date.format(formatter)).pressEnter();
         $("[name=\"name\"]").setValue("Иван Петров");
         $("[name=\"phone\"]").setValue("+91234567890");
         $(Selectors.byClassName("checkbox__box")).click();
         $(Selectors.byText("Забронировать")).click();
         $(Selectors.withText("Успешно!")).should(Condition.appear, Duration.ofSeconds(15));
+        String actualResult = $(".notification__content").getText();
+        Assertions.assertTrue(actualResult.contains(date.format(formatter)));
     }
 
     //City selects by click after enter first letter
     @Test
     void correctTestCitySelectsByClick() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.YYYY");
 //        $(Selectors.byAttribute("type", "text")).setValue("Москва");
         $(Selectors.byAttribute("type", "text")).setValue("Мо");
         $(Selectors.byText("Москва")).click();
-        $("[class='input__control'][type='tel']").setValue(date.toString());
+        $("[class='input__control'][type='tel']").doubleClick().sendKeys(Keys.BACK_SPACE);
+        $("[class='input__control'][type='tel']").append(date.format(formatter)).pressEnter();
         $("[name=\"name\"]").setValue("Иван Петров");
         $("[name=\"phone\"]").setValue("+71234567890");
         $(Selectors.byClassName("checkbox__box")).click();
         $(Selectors.byText("Забронировать")).click();
         $(Selectors.withText("Успешно!")).should(Condition.appear, Duration.ofSeconds(15));
+        String actualResult = $(".notification__content").getText();
+        Assertions.assertTrue(actualResult.contains(date.format(formatter)));
     }
 
     //Data selects from calendar
@@ -106,7 +113,7 @@ public class SelenidTests {
 
     //wrong phone number
     @Test
-    void wrongPhoneNumberTest() {
+    void wrongPhoneNumberTest()     {
         $(Selectors.byAttribute("type", "text")).setValue("Москва");
         $("[class='input__control'][type='tel']").setValue(LocalDate.now().plusDays(10).toString());
         $("[name=\"name\"]").setValue("Иван Петров");
